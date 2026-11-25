@@ -11,8 +11,8 @@ android {
         applicationId = "com.pulse.overlay"
         minSdk = 29          // AudioPlaybackCapture needs Android 10
         targetSdk = 35
-        versionCode = 3
-        versionName = "1.2"
+        versionCode = 4
+        versionName = "1.2.1"
     }
     // Fixed debug key committed to the repo so each CI build installs over the last one.
     // It's the standard public debug key format (password "android"): not a secret, not for Play.

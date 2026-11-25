@@ -21,8 +21,8 @@ Stop from the notification or the app.
 - **Album-art colours:** reads the playing app's media session (needs **notification access**) and extracts a 4-stop vivid palette that glides between songs. Sideloaded on Android 13+: if the toggle is greyed out, go to Settings → Apps → Pulse Overlay → ⋮ → **Allow restricted settings**.
 - Debug builds are now signed with a fixed key (`app/debug.keystore`), so new builds install over old ones.
 
-## Salt on a speaker (v1.2)
-4k–30k grains resting on an invisible vibrating surface along the bottom of the screen. Each of the 160 columns is driven by the band under it: bass moves big and slow, treble makes fast ripples. A grain lifts off only when the surface accelerates upward harder than gravity, with the surface's velocity plus scatter, and bass onsets add a kick. Grains fly under gravity, bounce with loss and settle. Piles form via a per-column heightfield and slump to an angle of repose. Fast grains draw motion streaks. Settings: grain size, count, bounciness, heaviness, sensitivity. Plain-white colour mode added. The grain count drops by 15% when frames stay slower than ~52 fps for 1.5 s, and creeps back after 8 s of smooth frames. v1 has no grain-on-grain collisions.
+## Salt on a speaker (v1.2.1)
+A fixed bed of 4k–30k grains on an invisible vibrating surface along the bottom. Grains are created only when the bed is laid (at start, on rotation, or when you change the count) and always at the bottom: nothing spawns or vanishes mid-air. Each of the 160 columns follows the band under it. On the surface's upswing it launches its grains, and the jump height is proportional to that band's amplitude × sensitivity: amplitude 1.0 reaches the Size height, and there's no ceiling clamp. Bass onsets add 25%. Grains bounce with height ∝ bounciness² and settle into heaps that sink and slump. Colour is a continuous gradient across the screen, one shader per brightness variant. Settings: grain size, count, bounciness, heaviness, sensitivity. No grain-on-grain collisions yet.
 
 ## Architecture
 | File | Role |
