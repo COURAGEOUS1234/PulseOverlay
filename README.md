@@ -1,6 +1,6 @@
 # Pulse Overlay
 
-**Download:** [PulseOverlay-debug.apk](https://github.com/COURAGEOUS1234/PulseOverlay/releases/latest/download/PulseOverlay-debug.apk), the latest test build, no sign-in needed.
+**Download:** [PulseOverlay-debug.apk](https://github.com/COURAGEOUS1234/PulseOverlay/releases/download/latest/PulseOverlay-debug.apk), the latest test build, no sign-in needed.
 
 Android music visualiser that reacts to audio from any app (Spotify, YouTube, local players, games) and draws on top of everything. Touches pass through the overlay.
 
