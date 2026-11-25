@@ -9,6 +9,7 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.res.Configuration
 import android.content.pm.ServiceInfo
 import android.graphics.PixelFormat
 import android.media.projection.MediaProjection
@@ -33,6 +34,10 @@ class VisualizerService : Service() {
     private var params: WindowManager.LayoutParams? = null
     private var source: AudioSource? = null
     private var projection: MediaProjection? = null
+    private var backdrop: ScreenBackdrop? = null
+    private var backdropFailed = false
+    private var artWatcher: MediaArtWatcher? = null
+    private var artHintShown = false
     private val projectionCallback = object : MediaProjection.Callback() {
         override fun onStop() = stopSelf() // user revoked capture from the system UI
     }
@@ -94,6 +99,7 @@ class VisualizerService : Service() {
             src.start(processor)
             source = src
             running = true
+            updateBackdrop()
         } catch (e: Exception) {
             val hint = if (useCapture) "" else " — try Playback capture mode instead"
             fail("Audio source failed: ${e.message}$hint")
@@ -132,6 +138,50 @@ class VisualizerService : Service() {
         view.sizeFraction = prefs.size
         lp.alpha = prefs.opacity // ≤ 0.8 keeps touch pass-through working on Android 12+
         if (updateWindow && view.isAttachedToWindow) windowManager.updateViewLayout(view, lp)
+        updateBackdrop()
+        updateArtWatcher()
+    }
+
+    /** Real glass blur needs a screen copy: only in playback-capture mode, Android 12+. */
+    private fun updateBackdrop(forceRestart: Boolean = false) {
+        val mp = projection
+        val want = prefs.style == VizStyle.GLASS && mp != null && Build.VERSION.SDK_INT >= 31 && !backdropFailed
+        if (want && mp != null) {
+            val bd = backdrop ?: ScreenBackdrop(this, mp).also { backdrop = it }
+            try {
+                if (forceRestart || !bd.isActive) bd.start()
+                overlay?.backdrop = bd
+            } catch (e: Exception) {
+                backdropFailed = true // e.g. user shared a single app, or the ROM refuses a second display
+                overlay?.backdrop = null
+                Toast.makeText(applicationContext, "Glass blur unavailable here (${e.javaClass.simpleName}); using frosted glass", Toast.LENGTH_LONG).show()
+            }
+        } else {
+            overlay?.backdrop = null
+            backdrop?.pause()
+        }
+    }
+
+    private fun updateArtWatcher() {
+        if (prefs.colorMode != ColorMode.ALBUM_ART) {
+            artWatcher?.stop()
+            artWatcher = null
+            overlay?.albumPalette = null
+            return
+        }
+        if (artWatcher != null) return
+        val watcher = MediaArtWatcher(this) { palette -> overlay?.albumPalette = palette }
+        if (watcher.start()) {
+            artWatcher = watcher
+        } else if (!artHintShown) {
+            artHintShown = true
+            Toast.makeText(applicationContext, "Album colours need notification access: open Pulse Overlay to grant it", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        if (overlay?.backdrop != null) updateBackdrop(forceRestart = true) // rotation: resize the screen copy
     }
 
     private fun buildNotification(capture: Boolean): Notification {
@@ -162,6 +212,10 @@ class VisualizerService : Service() {
     private fun teardownAudio() {
         source?.stop()
         source = null
+        overlay?.backdrop = null
+        backdrop?.release()
+        backdrop = null
+        backdropFailed = false
         projection?.let {
             it.unregisterCallback(projectionCallback) // else our own stop() would stopSelf() a restarted session
             it.stop()
@@ -173,6 +227,8 @@ class VisualizerService : Service() {
         running = false
         teardownAudio()
         prefs.unlisten(prefListener)
+        artWatcher?.stop()
+        artWatcher = null
         overlay?.let { if (it.isAttachedToWindow) windowManager.removeView(it) }
         overlay = null
         super.onDestroy()

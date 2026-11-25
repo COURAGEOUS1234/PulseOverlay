@@ -119,6 +119,12 @@ class MainActivity : Activity() {
             prefs.style = VizStyle.entries[it]
         })
 
+        root.addView(header("Colours"))
+        root.addView(radioGroup(ColorMode.entries.map { it.label }, prefs.colorMode.ordinal) {
+            prefs.colorMode = ColorMode.entries[it]
+            if (ColorMode.entries[it] == ColorMode.ALBUM_ART) ensureNotificationAccess()
+        })
+
         root.addView(header("Opacity"))
         root.addView(slider(Prefs.MIN_OPACITY, Prefs.MAX_OPACITY, prefs.opacity) { prefs.opacity = it })
 
@@ -145,9 +151,18 @@ class MainActivity : Activity() {
             textSize = 12f
             alpha = 0.7f
             text = "Style, opacity and size update live. Touches pass through the overlay. " +
-                "Apps that block audio capture show nothing in Playback capture mode — try Global Visualizer for those."
+                "Apps that block audio capture show nothing in Playback capture mode — try Global Visualizer for those.\n\n" +
+                "Liquid glass blurs what's behind each bar only in Playback capture mode on Android 12+, " +
+                "when you share the entire screen (it keeps a low-res live copy of the screen in memory, never saved). " +
+                "Otherwise the bars use frosted glass."
         })
         return ScrollView(this).apply { addView(root) }
+    }
+
+    private fun ensureNotificationAccess() {
+        if (MediaArtWatcher.isAccessGranted(this)) return
+        toast("Turn on Pulse Overlay in the list. If it's greyed out: Settings → Apps → Pulse Overlay → ⋮ → Allow restricted settings, then try again.")
+        startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
     }
 
     private fun header(t: String) = TextView(this).apply {

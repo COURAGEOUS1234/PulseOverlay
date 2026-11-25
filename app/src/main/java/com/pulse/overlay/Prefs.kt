@@ -13,6 +13,13 @@ enum class VizStyle(val label: String) {
     MIRROR("Bars – top + bottom"),
     WAVE("Waveform"),
     RING("Ring – centre"),
+    GLASS("Liquid glass bars"),
+    MATTER("Morphing matter"),
+}
+
+enum class ColorMode(val label: String) {
+    RAINBOW("Shifting rainbow"),
+    ALBUM_ART("From album art (needs notification access)"),
 }
 
 class Prefs(context: Context) {
@@ -28,6 +35,11 @@ class Prefs(context: Context) {
         get() = sp.getString(K_STYLE, null)
             ?.let { runCatching { VizStyle.valueOf(it) }.getOrNull() } ?: VizStyle.BARS
         set(v) = sp.edit().putString(K_STYLE, v.name).apply()
+
+    var colorMode: ColorMode
+        get() = sp.getString(K_COLOR, null)
+            ?.let { runCatching { ColorMode.valueOf(it) }.getOrNull() } ?: ColorMode.RAINBOW
+        set(v) = sp.edit().putString(K_COLOR, v.name).apply()
 
     /** Window alpha. Capped at 0.8: above that, Android 12+ blocks touches passing through the overlay. */
     var opacity: Float
@@ -52,5 +64,6 @@ class Prefs(context: Context) {
         private const val K_STYLE = "style"
         private const val K_OPACITY = "opacity"
         private const val K_SIZE = "size"
+        private const val K_COLOR = "color"
     }
 }
