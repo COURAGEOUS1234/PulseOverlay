@@ -35,6 +35,11 @@ class OverlayView(context: Context, private val processor: SpectrumProcessor) : 
     var style: VizStyle = VizStyle.BARS
     var sizeFraction: Float = 0.3f
 
+    /** Plain-white colour mode. */
+    var monochrome = false
+
+    val salt = SaltSim(resources.displayMetrics.density)
+
     /** Album-art palette ([ArtPalette.SIZE] stops) or null for the shifting rainbow. */
     @Volatile var albumPalette: IntArray? = null
 
@@ -88,6 +93,10 @@ class OverlayView(context: Context, private val processor: SpectrumProcessor) : 
             VizStyle.RING -> drawRing(canvas)
             VizStyle.GLASS -> drawGlass(canvas)
             VizStyle.MATTER -> drawMatter(canvas, dt)
+            VizStyle.SALT -> {
+                salt.step(width, height, dt, shown, processor.beat, sizeFraction)
+                salt.draw(canvas, ::colorAt, monochrome)
+            }
         }
         postInvalidateOnAnimation()
     }
@@ -110,6 +119,7 @@ class OverlayView(context: Context, private val processor: SpectrumProcessor) : 
 
     /** Colour at position t ∈ 0..1 across the visual. */
     private fun colorAt(t: Float): Int {
+        if (monochrome) return Color.rgb(245, 243, 236)
         if (palActive) {
             val pos = t.coerceIn(0f, 1f) * (pal.size - 1)
             val i = floor(pos).toInt().coerceAtMost(pal.size - 2)

@@ -136,6 +136,14 @@ class VisualizerService : Service() {
         val lp = params ?: return
         view.style = prefs.style
         view.sizeFraction = prefs.size
+        view.monochrome = prefs.colorMode == ColorMode.WHITE
+        view.salt.apply {
+            grainPx = prefs.grainPx
+            targetCount = prefs.grainCount
+            bounciness = prefs.bounciness
+            heaviness = prefs.heaviness
+            sensitivity = prefs.sensitivity
+        }
         lp.alpha = prefs.opacity // ≤ 0.8 keeps touch pass-through working on Android 12+
         if (updateWindow && view.isAttachedToWindow) windowManager.updateViewLayout(view, lp)
         updateBackdrop()

@@ -21,6 +21,9 @@ Stop from the notification or the app.
 - **Album-art colours:** reads the playing app's media session (needs **notification access**) and extracts a 4-stop vivid palette that glides between songs. Sideloaded on Android 13+: if the toggle is greyed out, go to Settings → Apps → Pulse Overlay → ⋮ → **Allow restricted settings**.
 - Debug builds are now signed with a fixed key (`app/debug.keystore`), so new builds install over old ones.
 
+## Salt on a speaker (v1.2)
+4k–30k grains resting on an invisible vibrating surface along the bottom of the screen. Each of the 160 columns is driven by the band under it: bass moves big and slow, treble makes fast ripples. A grain lifts off only when the surface accelerates upward harder than gravity, with the surface's velocity plus scatter, and bass onsets add a kick. Grains fly under gravity, bounce with loss and settle. Piles form via a per-column heightfield and slump to an angle of repose. Fast grains draw motion streaks. Settings: grain size, count, bounciness, heaviness, sensitivity. Plain-white colour mode added. The grain count drops by 15% when frames stay slower than ~52 fps for 1.5 s, and creeps back after 8 s of smooth frames. v1 has no grain-on-grain collisions.
+
 ## Architecture
 | File | Role |
 |---|---|
@@ -31,6 +34,7 @@ Stop from the notification or the app.
 | `OverlayView` | Vsync-driven Canvas: bars, top+bottom bars, waveform, ring; hue drift |
 | `ScreenBackdrop` | MediaProjection → VirtualDisplay → ImageReader, ¼ res, ~30 fps, triple-buffered |
 | `AlbumArt.kt` | Notification-listener stub, media-session watcher, hue-bucket palette extraction |
+| `SaltSim` | Salt physics + bucketed `drawPoints`/`drawLines` rendering (one call per colour × shade) |
 | `MainActivity` | Settings (live-updating via SharedPreferences listener) + permission flow |
 
 ## Known limits

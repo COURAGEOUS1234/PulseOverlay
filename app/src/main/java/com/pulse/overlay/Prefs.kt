@@ -15,11 +15,13 @@ enum class VizStyle(val label: String) {
     RING("Ring – centre"),
     GLASS("Liquid glass bars"),
     MATTER("Morphing matter"),
+    SALT("Salt on a speaker"),
 }
 
 enum class ColorMode(val label: String) {
     RAINBOW("Shifting rainbow"),
     ALBUM_ART("From album art (needs notification access)"),
+    WHITE("Plain white (salt)"),
 }
 
 class Prefs(context: Context) {
@@ -50,6 +52,27 @@ class Prefs(context: Context) {
     var size: Float
         get() = sp.getFloat(K_SIZE, 0.3f).coerceIn(0.1f, 0.7f)
         set(v) = sp.edit().putFloat(K_SIZE, v.coerceIn(0.1f, 0.7f)).apply()
+
+    // ---- Salt theme
+    var grainPx: Float
+        get() = sp.getFloat("grain_px", 3f).coerceIn(1f, 8f)
+        set(v) = sp.edit().putFloat("grain_px", v.coerceIn(1f, 8f)).apply()
+
+    var grainCount: Int
+        get() = sp.getInt("grain_count", 20_000).coerceIn(SaltSim.MIN_GRAINS, SaltSim.MAX_GRAINS)
+        set(v) = sp.edit().putInt("grain_count", v.coerceIn(SaltSim.MIN_GRAINS, SaltSim.MAX_GRAINS)).apply()
+
+    var bounciness: Float
+        get() = sp.getFloat("bounce", 0.45f).coerceIn(0.1f, 0.8f)
+        set(v) = sp.edit().putFloat("bounce", v.coerceIn(0.1f, 0.8f)).apply()
+
+    var heaviness: Float
+        get() = sp.getFloat("heavy", 1f).coerceIn(0.4f, 2f)
+        set(v) = sp.edit().putFloat("heavy", v.coerceIn(0.4f, 2f)).apply()
+
+    var sensitivity: Float
+        get() = sp.getFloat("sens", 1f).coerceIn(0.3f, 3f)
+        set(v) = sp.edit().putFloat("sens", v.coerceIn(0.3f, 3f)).apply()
 
     fun listen(l: SharedPreferences.OnSharedPreferenceChangeListener) =
         sp.registerOnSharedPreferenceChangeListener(l)

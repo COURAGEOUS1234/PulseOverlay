@@ -131,6 +131,20 @@ class MainActivity : Activity() {
         root.addView(header("Size"))
         root.addView(slider(0.1f, 0.7f, prefs.size) { prefs.size = it })
 
+        root.addView(header("Salt on a speaker"))
+        root.addView(label("Grain size (1–8 px)"))
+        root.addView(slider(1f, 8f, prefs.grainPx) { prefs.grainPx = it })
+        root.addView(label("Grain count (4k–30k; drops automatically if the phone can't keep 60 fps)"))
+        root.addView(slider(SaltSim.MIN_GRAINS.toFloat(), SaltSim.MAX_GRAINS.toFloat(), prefs.grainCount.toFloat()) {
+            prefs.grainCount = it.toInt()
+        })
+        root.addView(label("Bounciness"))
+        root.addView(slider(0.1f, 0.8f, prefs.bounciness) { prefs.bounciness = it })
+        root.addView(label("Heaviness"))
+        root.addView(slider(0.4f, 2f, prefs.heaviness) { prefs.heaviness = it })
+        root.addView(label("Sensitivity"))
+        root.addView(slider(0.3f, 3f, prefs.sensitivity) { prefs.sensitivity = it })
+
         val buttons = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER
@@ -163,6 +177,13 @@ class MainActivity : Activity() {
         if (MediaArtWatcher.isAccessGranted(this)) return
         toast("Turn on Pulse Overlay in the list. If it's greyed out: Settings → Apps → Pulse Overlay → ⋮ → Allow restricted settings, then try again.")
         startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
+    }
+
+    private fun label(t: String) = TextView(this).apply {
+        text = t
+        textSize = 13f
+        alpha = 0.8f
+        setPadding(0, dp(8), 0, 0)
     }
 
     private fun header(t: String) = TextView(this).apply {
